@@ -1,0 +1,943 @@
+getgenv().Config = {
+    ['Auth'] = {Authenticationkey = "Rentry.co/ConfigAUTHverification"},
+    ['Main'] = {
+        Camlock = {
+            Enabled = false,
+            Keybind = 'V',
+            Prediction = 0.12,
+            Hitpart = "HumanoidRootPart",
+            KOcheck = true,
+            Notifications = false
+        },
+        Target = {
+            Silent = false,
+            Keybind = "Q",
+            Prediction = 0.123662,
+            Kocheck = true,
+        }
+    },
+    ['StrafeSettings'] = {
+        StrafeisEnabled = true,
+        Strafekey = "L",
+        StrafeDifference = 10,
+        StrafeMode = "Behind",
+        StrafeSync = true,
+        StrafeThreading = "Skibidi",
+        DisableStrafeOnTargetDeath = true
+    },
+    ['Visuals'] = {
+        Selfdot = false,
+        Dotontarget = true,
+        Stats = false,
+        Guis = true
+    },
+    ['Localplayer'] = {
+        CFrameisenabled = true,
+        CFrameKeybind = "Z",
+        CFrameSpeed = 5
+    },
+    ['ControlCenter'] = {
+        AllShallConsiderGod = "UpdateMousePos"
+    }
+}
+
+-- Function to check all conditions
+function CheckAllConditions()
+    local conditions = {
+        {
+            condition = (Config.Auth.Authenticationkey ~= "Rentry.co/ConfigAUTHverification"),
+            action = function() game.Players.LocalPlayer:Kick("Auth key failed.") end
+        },
+        {
+            condition = Config.StrafeSettings.StrafeSync and Config.StrafeSettings.StrafeisEnabled,
+            action = function() Config.StrafeSettings.Strafekey = Config.Main.Target.Keybind end
+        },
+        {
+            condition = Config.Visuals.Stats,
+            action = function() Frame.Visible = true end
+        },
+        {
+            condition = not Config.Visuals.Stats,
+            action = function() statsframe.Visible = false; Armorlabel.Visible = false; Healthlabel.Visible = false end
+        },
+        {
+            condition = Config.Visuals.Guis,
+            action = function() Frame.Visible = true end
+        },
+        {
+            condition = not Config.Visuals.Guis,
+            action = function() Frame.Visible = false end
+        },
+        {
+            condition = Config.Localplayer.CFrameisenabled,
+            action = function() 
+                -- Add logic for CFrame enabled if needed
+                print("CFrame is enabled.")
+            end 
+        },
+        {
+            condition = Config.StrafeSettings.DisableStrafeOnTargetDeath,
+            action = function() 
+                if player and player.Character and player.Character:FindFirstChild("Humanoid") then
+                    local humanoid = player.Character.Humanoid
+                    if humanoid.Health < 1 then
+                        player = "Not set"
+                        plrset = false
+                    end
+                end
+            end
+        },
+        {
+            condition = Config.Main.Camlock.Enabled,
+            action = function() 
+                if Player and Config.Main.Camlock.KOcheck then
+                    if Player.Character and Player.Character:FindFirstChild("Humanoid") then
+                        local humanoid = Player.Character.Humanoid
+                        if humanoid.Health < 2 then
+                            Player = nil
+                        end
+                    end
+                end
+            end
+        },
+        {
+            condition = Config.Main.Target.Silent,
+            action = function() 
+                updateClosestPlayer() 
+            end
+        },
+        {
+            condition = Config.Visuals.Selfdot,
+            action = function() 
+                selfdotlol = dot(game.Players.LocalPlayer.Character.HumanoidRootPart, 0.7)
+                game.Players.LocalPlayer.CharacterAdded:connect(function()
+                    wait(0.2)
+                    selfdotlol = dot(game.Players.LocalPlayer.Character.HumanoidRootPart, 0.7)
+                end)
+            end
+        },
+        {
+            condition = Config.StrafeSettings.StrafeisEnabled,
+            action = function() 
+                if player == "Not set" then 
+                    player = GetClosestPlayer()
+                    plrset = true 
+                    spawn(aloc)
+                else 
+                    player = "Not set"
+                    plrset = false 
+                end 
+            end
+        }
+    }
+
+    -- Execute actions for conditions that are true
+    for _, entry in ipairs(conditions) do
+        if entry.condition then
+            pcall(entry.action)  -- Safely call the action to prevent runtime errors
+        end
+    end
+end
+
+-- Call the function
+if (Config.Auth.Authenticationkey ~= "Rentry.co/ConfigAUTHverification") then
+	game.Players.LocalPlayer:Kick("Auth key failed.");
+else
+	print("Auth passed.");
+end
+
+
+if Config.StrafeSettings.StrafeSync then 
+if Config.StrafeSettings.StrafeisEnabled then 
+Config.StrafeSettings.Strafekey = Config.Main.Target.Keybind
+end 
+end 
+arglol = Config.ControlCenter.AllShallConsiderGod;
+local function dot(parent, size)
+	local e = Instance.new("BillboardGui", parent);
+	e.Name = "Dot";
+	e.Size = UDim2.new(size, size, size, size);
+	e.AlwaysOnTop = true;
+	local a = Instance.new("Frame", e);
+	a.Size = UDim2.new(1, 0, 1, 0);
+	a.Transparency = 0;
+	a.BackgroundTransparency = 0;
+	a.BackgroundColor3 = Color3.fromRGB(173, 216, 230);
+	local g = Instance.new("UICorner", a);
+	g.CornerRadius = UDim.new(1, 1);
+	return e;
+end
+local sg = Instance.new("ScreenGui");
+local statsframe = Instance.new("Frame");
+local Healthlabel = Instance.new("TextLabel");
+local Armorlabel = Instance.new("TextLabel");
+local Frame = Instance.new("Frame");
+sg.Name = "sg";
+sg.Parent = game:GetService("CoreGui");
+statsframe.Name = "statsframe";
+statsframe.Parent = sg;
+statsframe.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+statsframe.BackgroundTransparency = 999;
+statsframe.BorderColor3 = Color3.fromRGB(0, 0, 0);
+statsframe.BorderSizePixel = 0;
+statsframe.Position = UDim2.new(0.378676474, 0, 0.800000012, 0);
+statsframe.Size = UDim2.new(0, 197, 0, 100);
+Healthlabel.Name = "Healthlabel";
+Healthlabel.Parent = statsframe;
+Healthlabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+Healthlabel.BackgroundTransparency = 99;
+Healthlabel.BorderColor3 = Color3.fromRGB(0, 0, 0);
+Healthlabel.BorderSizePixel = 0;
+Healthlabel.Position = UDim2.new(-1.25380707, 0, -2.19000006, 0);
+Healthlabel.Size = UDim2.new(0, 200, 0, 50);
+Healthlabel.Font = Enum.Font.Gotham;
+Healthlabel.Text = "TargetHealth: N/A";
+Healthlabel.TextColor3 = Color3.fromRGB(98, 255, 0);
+Healthlabel.TextSize = 23;
+Armorlabel.Name = "Armorlabel";
+Armorlabel.Parent = statsframe;
+Armorlabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+Armorlabel.BackgroundTransparency = 99;
+Armorlabel.BorderColor3 = Color3.fromRGB(0, 0, 0);
+Armorlabel.BorderSizePixel = 0;
+Armorlabel.Position = UDim2.new(-1.25380707, 0, -1.88, 0);
+Armorlabel.Size = UDim2.new(0, 200, 0, 50);
+Armorlabel.Font = Enum.Font.Gotham;
+Armorlabel.Text = "TargetArmor: N/A";
+Armorlabel.TextColor3 = Color3.fromRGB(72, 0, 255);
+Armorlabel.TextSize = 23;
+player = "Not set"
+plrset = false 
+if Config.Visuals.Stats then
+	Frame.Visible = true;
+else
+	statsframe.Visible = false;
+	Armorlabel.Visible = false;
+	Healthlabel.Visible = false;
+end
+local ScreenGui = Instance.new("ScreenGui");
+local Frame = Instance.new("Frame");
+local TextLabel = Instance.new("TextLabel");
+ScreenGui.Parent = game:GetService("CoreGui");
+Frame.Parent = ScreenGui;
+Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+Frame.BackgroundTransparency = 999;
+Frame.BorderColor3 = Color3.fromRGB(0, 0, 0);
+Frame.BorderSizePixel = 0;
+Frame.Position = UDim2.new(0.134803921, 0, 0.344594598, 0);
+Frame.Size = UDim2.new(0, 153, 0, 100);
+if Config.Visuals.Guis then 
+else 
+    Frame.Visible = false
+end 
+TextLabel.Parent = Frame;
+TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255);
+TextLabel.BackgroundTransparency = 90999;
+TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0);
+TextLabel.BorderSizePixel = 0;
+TextLabel.Position = UDim2.new(-0.138447776, 0, -0.0751351938, 0);
+TextLabel.Size = UDim2.new(0, 200, 0, 50);
+TextLabel.Font = Enum.Font.Gotham;
+TextLabel.Text = "Config🦑";
+TextLabel.TextColor3 = Color3.fromRGB(188, 188, 188);
+TextLabel.TextSize = 18;
+TextLabel.Text = "Auth Passed: Config🦑";
+wait(2);
+TextLabel.Text = "Config🦑";
+toggle = Config.Localplayer.CFrameisenabled;
+enabled = false;
+keyee = Config.Localplayer.CFrameKeybind;
+speed = Config.Localplayer.CFrameSpeed;
+local lolaafuck = 0
+if Config.Main.Silent then 
+lolaafuck = 0.145 
+else 
+lolaafuck = 0.01
+end 
+
+function aloc()
+
+if Config.StrafeSettings.StrafeThreading == "Skibidi" then 
+local hrt = game:GetService("RunService").Heartbeat:connect(function()
+if plrset then 
+local targetHumanoidRootPart = player.Character.HumanoidRootPart
+        local relPos = targetHumanoidRootPart.CFrame * mmth
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = relPos
+end 
+end)
+end 
+
+if Config.StrafeSettings.StrafeThreading == "Sigma" then 
+while plrset do
+        wait(0.001)
+        local targetHumanoidRootPart = player.Character.HumanoidRootPart
+        local relPos = targetHumanoidRootPart.CFrame * mmth
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = relPos
+    end
+end
+    
+end
+
+game:GetService("Players").LocalPlayer:GetMouse().KeyDown:connect(function(Key)
+	local cfKey = keyee:lower();
+	if (Key == cfKey) then
+		if toggle then
+			enabled = not enabled;
+			if (enabled == true) then
+				repeat
+					game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame + (game.Players.LocalPlayer.Character.Humanoid.MoveDirection * speed);
+					game:GetService("RunService").Stepped:wait();
+				until enabled == false 
+			end
+		end
+	end
+end);
+getgenv().delusion = {Aimbot={Keybind=Enum.KeyCode[Config.Main.Target.Keybind],CamlockPrediction=0.31,Prediction=Config.Main.Target.Prediction,Basic=false,TargetPart="",NearestPart=true,MultipleTargetPart={"UpperTorso","HumanoidRootPart"},CameraSmoothing=0.5,CameraShake=0.5,JumpOffset=-1.5},Safety={AntiGroundShots=true},Checks={DisableOnTargetDeath=Config.Main.Target.Kocheck,DisableOnPlayerDeath=Config.Main.Target.Kocheck,CheckKoStatus=Config.Main.Target.Kocheck},Macro={Enabled=false,SpeedGlitchKey=Enum.KeyCode.X},EspSection={ChamsESP=false,ChamsESPKeybind=Enum.KeyCode.T,ChamsColor1=Color3.fromRGB(255, 255, 255),ChamsColor2=Color3.fromRGB(255, 255, 255)},Misc={RejoinServer=false},Spin={Enabled=false,SpinSpeed=4900,Degrees=360,Keybind=Enum.KeyCode.V}};
+if not getgenv().Loaded then
+	local userInputService = game:GetService("UserInputService");
+	local function CheckAnti(Plr)
+		if (Plr.Character.HumanoidRootPart.Velocity.Y < -70) then
+			return true;
+		elseif (Plr and ((Plr.Character.HumanoidRootPart.Velocity.X > 450) or (Plr.Character.HumanoidRootPart.Velocity.X < -35))) then
+			return true;
+		elseif (Plr and (Plr.Character.HumanoidRootPart.Velocity.Y > 60)) then
+			return true;
+		elseif (Plr and ((Plr.Character.HumanoidRootPart.Velocity.Z > 35) or (Plr.Character.HumanoidRootPart.Velocity.Z < -35))) then
+			return true;
+		else
+			return false;
+		end
+	end
+	local function getnamecall()
+		if (game.PlaceId == 2788229376) then
+			return arglol;
+		elseif ((game.PlaceId == 5602055394) or (game.PlaceId == 7951883376)) then
+			return arglol;
+		elseif (game.PlaceId == 9825515356) then
+			return arglol;
+		end
+	end
+	function MainEventLocate()
+		for _, v in pairs(game:GetService("ReplicatedStorage"):GetDescendants()) do
+			if (v.Name == "MainEvent") then
+				return v;
+			end
+		end
+	end
+	local Locking = false;
+	local Players = game:GetService("Players");
+	local Client = Players.LocalPlayer;
+	local Plr = "Not set";
+	setplr = "Not set";
+	local UserInputService = game:GetService("UserInputService");
+	local RunService = game:GetService("RunService");
+	local Camera = workspace.CurrentCamera;
+	local Toggle = false;
+	local function OnKeyPress(Input, GameProcessedEvent)
+		if ((Input.KeyCode == getgenv().delusion.Aimbot.Keybind) and not GameProcessedEvent) then
+			Toggle = not Toggle;
+		elseif (Input.KeyCode == getgenv().delusion.Macro.SpeedGlitchKey) then
+			if getgenv().delusion.Macro.Enabled then
+				getgenv().delusion.Macro.SpeedGlitch = not getgenv().delusion.Macro.SpeedGlitch;
+				if getgenv().delusion.Macro.SpeedGlitch then
+					repeat
+						game:GetService("RunService").Heartbeat:Wait();
+						keypress(73);
+						game:GetService("RunService").Heartbeat:Wait();
+						keypress(79);
+						game:GetService("RunService").Heartbeat:Wait();
+						keyrelease(73);
+						game:GetService("RunService").Heartbeat:Wait();
+						keyrelease(79);
+						game:GetService("RunService").Heartbeat:Wait();
+					until not getgenv().delusion.Macro.SpeedGlitch 
+				end
+			end
+		end
+	end
+	UserInputService.InputBegan:Connect(OnKeyPress);
+	local dotInstance = nil;
+	local looping;
+	UserInputService.InputBegan:Connect(function(keygo, ok)
+		if not ok then
+			if (keygo.KeyCode == getgenv().delusion.Aimbot.Keybind) then
+				Locking = not Locking;
+				if Locking then
+					Plr = getClosestPlayerToCursor();
+				setplr = tostring(Plr);
+         
+			
+					TextLabel.Text = "Locked onto: " .. setplr;
+					if Config.Visuals.Dotontarget then
+						for i, v in pairs(game.Players:GetChildren()) do
+							if (v.Name == setplr) then
+								dotInstance = dot(v.Character['HumanoidRootPart'], 1);
+							end
+						end
+					end
+					looping = true;
+					while looping do
+						wait(0.001);
+						for i, v in pairs(game.Players:GetChildren()) do
+							if (v.Name == setplr) then
+								Healthlabel.Text = "TargetHealth: " .. v.Character.Humanoid.Health;
+								Armorlabel.Text = "TargetArmor: " .. v.DataFolder.Information.Armor.Value;
+							end
+						end
+					end
+				elseif not Locking then
+					if Plr then
+						Plr = "Not set";
+
+						setplr = "Not set";
+						TextLabel.Text = "Unlocked";
+						looping = false;
+						Healthlabel.Text = "TargetHealth: N/A";
+						Armorlabel.Text = "TargetArmor: N/A";
+						if dotInstance then
+							dotInstance:Destroy();
+							dotInstance = nil;
+						end
+					end
+				end
+			end
+		end
+	end);
+	function getClosestPlayerToCursor()
+		local closestDist = math.huge;
+		local closestPlr = nil;
+		for _, v in ipairs(Players:GetPlayers()) do
+			if ((v ~= Client) and v.Character and v.Character:FindFirstChild("Humanoid") and (v.Character.Humanoid.Health > 0)) then
+				local screenPos, cameraVisible = workspace.CurrentCamera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position);
+				if cameraVisible then
+					local distToMouse = (Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2.new(screenPos.X, screenPos.Y)).Magnitude;
+					if (distToMouse < closestDist) then
+						closestPlr = v;
+						closestDist = distToMouse;
+					end
+				end
+			end
+		end
+		return closestPlr;
+	end
+
+    local function updateClosestPlayer()
+
+    UserInputService.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            Plr = getClosestPlayerToCursor();
+        end
+    end)
+
+end
+if Config.Main.Target.Silent then 
+updateClosestPlayer()
+
+end
+	function getClosestPartToCursor(Player)
+		local closestPart, closestDist = nil, math.huge;
+		if (Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character:FindFirstChild("Head") and (Player.Character.Humanoid.Health ~= 0) and Player.Character:FindFirstChild("HumanoidRootPart")) then
+			for i, part in pairs(Player.Character:GetChildren()) do
+				if part:IsA("BasePart") then
+					local screenPos, cameraVisible = workspace.CurrentCamera:WorldToViewportPoint(part.Position);
+					local distToMouse = (Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y) - Vector2.new(screenPos.X, screenPos.Y)).Magnitude;
+					if ((distToMouse < closestDist) and table.find(getgenv().delusion.Aimbot.MultipleTargetPart, part.Name)) then
+						closestPart = part;
+						closestDist = distToMouse;
+					end
+				end
+			end
+			return closestPart;
+		end
+	end
+	game:GetService("RunService").RenderStepped:Connect(function()
+		if (Plr and Plr.Character) then
+			if ((getgenv().delusion.Aimbot.NearestPart == true) and (getgenv().delusion.Aimbot.Basic == false)) then
+				getgenv().delusion.Aimbot.TargetPart = tostring(getClosestPartToCursor(Plr));
+			elseif ((getgenv().delusion.Aimbot.Basic == true) and (getgenv().delusion.Aimbot.NearestPart == false)) then
+				getgenv().delusion.Aimbot.TargetPart = getgenv().delusion.Aimbot.TargetPart;
+			end
+		end
+	end);
+	local function getVelocity(Player)
+		local Old = Player.Character.HumanoidRootPart.Position;
+		wait(0.01);
+		local Current = Player.Character.HumanoidRootPart.Position;
+		return (Current - Old) / lolaafuck;
+	end
+	local function GetShakedVector3(Setting)
+		return Vector3.new(math.random(-Setting * 1000000000, Setting * 1000000000), math.random(-Setting * 1000000000, Setting * 1000000000), math.random(-Setting * 1000000000, Setting * 1000000000)) / 1000000000;
+	end
+	local v = nil;
+	game:GetService("RunService").Heartbeat:Connect(function(deltaTime)
+		if ((Plr ~= nil) and Plr.Character and Plr.Character:FindFirstChild("HumanoidRootPart")) then
+			v = getVelocity(Plr);
+		end
+	end);
+	local mainevent = game:GetService("ReplicatedStorage").MainEvent;
+	Client.Character.ChildAdded:Connect(function(child)
+		if (child:IsA("Tool") and child:FindFirstChild("MaxAmmo")) then
+			child.Activated:Connect(function()
+				if (Plr and Plr.Character) then
+					local Position = ((Plr.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall) and (Plr.Character[getgenv().delusion.Aimbot.TargetPart].Position + Vector3.new(0, getgenv().delusion.Aimbot.JumpOffset, 0))) or Plr.Character[getgenv().delusion.Aimbot.TargetPart].Position;
+					if not CheckAnti(Plr) then
+						mainevent:FireServer("UpdateMousePos", Position + (Plr.Character.HumanoidRootPart.Velocity * getgenv().delusion.Aimbot.Prediction));
+					else
+						mainevent:FireServer(arglol, Position + (Plr.Character.Humanoid.MoveDirection * Plr.Character.Humanoid.WalkSpeed * getgenv().delusion.Aimbot.Prediction));
+					end
+				end
+			end);
+		end
+	end);
+	Client.CharacterAdded:Connect(function(character)
+		character.ChildAdded:Connect(function(child)
+			if (child:IsA("Tool") and child:FindFirstChild("MaxAmmo")) then
+				child.Activated:Connect(function()
+					if (Plr and Plr.Character) then
+						local Position = ((Plr.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall) and (Plr.Character[getgenv().delusion.Aimbot.TargetPart].Position + Vector3.new(0, getgenv().delusion.Aimbot.JumpOffset, 0))) or Plr.Character[getgenv().delusion.Aimbot.TargetPart].Position;
+						if not CheckAnti(Plr) then
+							mainevent:FireServer(arglol, Position + (Plr.Character.HumanoidRootPart.Velocity * getgenv().delusion.Aimbot.Prediction));
+						else
+							mainevent:FireServer(arglol, Position + (Plr.Character.Humanoid.MoveDirection * Plr.Character.Humanoid.WalkSpeed * getgenv().delusion.Aimbot.Prediction));
+						end
+					end
+				end);
+			end
+		end);
+	end);
+
+	pcall(function()
+	game:GetService("RunService").RenderStepped:Connect(function()
+		if ((getgenv().delusion.Checks.CheckKoStatus == true) and Plr and Plr.Character) then
+			local KOd = Plr.Character:WaitForChild("BodyEffects")["K.O"].Value;
+			local Grabbed = Plr.Character:FindFirstChild("GRABBING_CONSTRAINT") ~= nil;
+			if ((Plr.Character.Humanoid.Health < 1) or KOd or Grabbed) then
+				if (Locking == true) then
+					Plr = "Not set";
+					Locking = false;
+					TextLabel.Text = "Unlocked";
+					looping = false;
+					wait(0.0012);
+					Healthlabel.Text = "TargetHealth: N/A";
+					Armorlabel.Text = "TargetArmor: N/A";
+					if dotInstance then
+						dotInstance:Destroy();
+						dotInstance = nil;
+					end
+				end
+			end
+		end
+		if ((getgenv().delusion.Checks.DisableOnTargetDeath == true) and Plr and Plr.Character:FindFirstChild("Humanoid")) then
+			if (Plr.Character.Humanoid.health < 1) then
+				if (Locking == true) then
+					Plr = "Not set";
+					Locking = false;
+					TextLabel.Text = "Unlocked";
+					looping = false;
+					wait(0.0012);
+					Healthlabel.Text = "TargetHealth: N/A";
+					Armorlabel.Text = "TargetArmor: N/A";
+					if dotInstance then
+						dotInstance:Destroy();
+						dotInstance = nil;
+					end
+				end
+			end
+		end
+		if ((getgenv().delusion.Checks.DisableOnPlayerDeath == true) and Client.Character and Client.Character:FindFirstChild("Humanoid") and (Client.Character.Humanoid.health < 1)) then
+			if (Locking == true) then
+				Plr = "Not set";
+				Locking = false;
+				TextLabel.Text = "Unlocked";
+				wait(0.0012);
+				looping = false;
+				Healthlabel.Text = "TargetHealth: N/A";
+				Armorlabel.Text = "TargetArmor: N/A";
+				if dotInstance then
+					dotInstance:Destroy();
+					dotInstance = nil;
+				end
+			end
+		end
+		if ((getgenv().delusion.Safety.AntiGroundShots == true) and (Plr.Character.Humanoid.Jump == true) and (Plr.Character.Humanoid.FloorMaterial == Enum.Material.Air)) then
+			pcall(function()
+				local TargetVelv5 = Plr.Character.HumanoidRootPart;
+				TargetVelv5.Velocity = Vector3.new(TargetVelv5.Velocity.X, math.abs(TargetVelv5.Velocity.Y * 0.36), TargetVelv5.Velocity.Z);
+				TargetVelv5.AssemblyLinearVelocity = Vector3.new(TargetVelv5.Velocity.X, math.abs(TargetVelv5.Velocity.Y * 0.36), TargetVelv5.Velocity.Z);
+			end);
+		end
+	end);
+	if (getgenv().delusion.EspSection.ChamsESP == true) then
+		local UserInputService = game:GetService("UserInputService");
+		local ToggleKey = getgenv().delusion.EspSection.ChamsESPKeybind;
+		local FillColor = getgenv().delusion.EspSection.ChamsColor1;
+		local DepthMode = "AlwaysOnTop";
+		local FillTransparency = 0.5;
+		local OutlineColor = getgenv().delusion.EspSection.ChamsColor2;
+		local OutlineTransparency = 0;
+		local CoreGui = game:GetService("CoreGui");
+		local Players = game:GetService("Players");
+		local lp = Players.LocalPlayer;
+		local connections = {};
+		local Storage = Instance.new("Folder");
+		Storage.Parent = CoreGui;
+		Storage.Name = "Highlight_Storage";
+		local isEnabled = false;
+		local function Highlight(plr)
+			local Highlight = Instance.new("Highlight");
+			Highlight.Name = plr.Name;
+			Highlight.FillColor = FillColor;
+			Highlight.DepthMode = DepthMode;
+			Highlight.FillTransparency = FillTransparency;
+			Highlight.OutlineColor = OutlineColor;
+			Highlight.OutlineTransparency = 0;
+			Highlight.Parent = Storage;
+			local plrchar = plr.Character;
+			if plrchar then
+				Highlight.Adornee = plrchar;
+			end
+			connections[plr] = plr.CharacterAdded:Connect(function(char)
+				Highlight.Adornee = char;
+			end);
+		end
+		local function EnableHighlight()
+			isEnabled = true;
+			for _, player in ipairs(Players:GetPlayers()) do
+				Highlight(player);
+			end
+		end
+		local function DisableHighlight()
+			isEnabled = false;
+			for _, highlight in ipairs(Storage:GetChildren()) do
+				highlight:Destroy();
+			end
+			for _, connection in pairs(connections) do
+				connection:Disconnect();
+			end
+		end
+		UserInputService.InputBegan:Connect(function(input)
+			if (input.KeyCode == ToggleKey) then
+				if isEnabled then
+					DisableHighlight();
+				else
+					EnableHighlight();
+				end
+			end
+		end);
+		Players.PlayerAdded:Connect(function(player)
+			if isEnabled then
+				Highlight(player);
+			end
+		end);
+		Players.PlayerRemoving:Connect(function(player)
+			local highlight = Storage:FindFirstChild(player.Name);
+			if highlight then
+				highlight:Destroy();
+			end
+			local connection = connections[player];
+			if connection then
+				connection:Disconnect();
+			end
+		end);
+		if isEnabled then
+			EnableHighlight();
+		end
+	end
+	if (getgenv().delusion.Misc.RejoinServer == true) then
+		local TeleportService = game:GetService("TeleportService");
+		local function RejoinSameServer()
+			local success, errorMessage = pcall(function()
+				local placeId = game.PlaceId;
+				local jobId = game.JobId;
+				TeleportService:TeleportToPlaceInstance(placeId, jobId);
+			end);
+			if not success then
+				warn("Failed to rejoin: " .. errorMessage);
+			end
+		end
+		wait(0);
+		RejoinSameServer();
+	end
+	end)
+	if (getgenv().delusion.Spin.Enabled == true) then
+		local Players = game:GetService("Players");
+		local UserInputService = game:GetService("UserInputService");
+		local RunService = game:GetService("RunService");
+		local Camera = workspace.CurrentCamera;
+		local Toggle = getgenv().delusion.Spin.Enabled;
+		local RotationSpeed = getgenv().delusion.Spin.SpinSpeed;
+		local Keybind = getgenv().delusion.Spin.Keybind;
+		local function OnKeyPress(Input, GameProcessedEvent)
+			if ((Input.KeyCode == Keybind) and not GameProcessedEvent) then
+				Toggle = not Toggle;
+			end
+		end
+		UserInputService.InputBegan:Connect(OnKeyPress);
+		local LastRenderTime = 0;
+		local TotalRotation = 0;
+		local function RotateCamera()
+			print("niggers");
+		end
+		RunService.RenderStepped:Connect(RotateCamera);
+	end
+	getgenv().Loaded = true;
+else
+end
+if getgenv().AimbotRan then
+	return;
+else
+	getgenv().AimbotRan = true;
+end
+local RunService = game:GetService("RunService");
+local Workspace = game:GetService("Workspace");
+local Players = game:GetService("Players");
+local LocalPlayer = Players.LocalPlayer;
+local Camera = Workspace.CurrentCamera;
+local Mouse = LocalPlayer:GetMouse();
+local Player = nil;
+local GetClosestPlayer = function()
+	local ClosestDistance, ClosestPlayer = 100000, nil;
+	for _, Player in pairs(Players:GetPlayers()) do
+		if ((Player.Name ~= LocalPlayer.Name) and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")) then
+			local Root, Visible = Camera:WorldToScreenPoint(Player.Character.HumanoidRootPart.Position);
+			if not Visible then
+				continue;
+			end
+			Root = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(Root.X, Root.Y)).Magnitude;
+			if (Root < ClosestDistance) then
+				ClosestPlayer = Player;
+				ClosestDistance = Root;
+			end
+		end
+	end
+	return ClosestPlayer;
+end;
+Mouse.KeyDown:Connect(function(key)
+	if (key == Config.Main.Camlock.Keybind:lower()) then
+		Player = (not Player and GetClosestPlayer()) or nil;
+	end
+end);
+RunService.RenderStepped:Connect(function()
+	if not Player then
+		return;
+	end
+	if not Config.Main.Camlock.Enabled then
+		return;
+	end
+	if Config.Main.Camlock.KOcheck then
+		if Player.Character then
+			if Player.Character:FindFirstChild("Humanoid") then
+				local humanoid = Player.Character.Humanoid;
+				if (humanoid.Health < 2) then
+					if Config.Main.Camlock.Notifications then
+						print();
+					end
+					Player = nil;
+					return;
+				end
+			else
+			end
+		else
+		end
+	end
+	local Hitpart = Player.Character:FindFirstChild(Config.Main.Camlock.Hitpart);
+	if not Hitpart then
+		return;
+	end
+	Camera.CFrame = CFrame.new(Camera.CFrame.Position, Hitpart.Position + (Hitpart.Velocity * Vector3.new(Config.Main.Camlock.Prediction, 0.1, Config.Main.Camlock.Prediction)));
+end);
+
+strafeenabled = Config.StrafeSettings.StrafeisEnabled
+strafekey = Config.StrafeSettings.Strafekey
+strafedifference = Config.StrafeSettings.StrafeDifference
+strafemethod = Config.StrafeSettings.StrafeMode
+
+
+mmth = CFrame.new(0,0,0)
+psb = -strafedifference
+if strafemethod == "Above" then 
+    mmth = CFrame.new(0, strafedifference, 0)
+elseif strafemethod == "Behind" then 
+    mmth = CFrame.Angles(0, math.pi, 0) * CFrame.new(0, 0, -strafedifference)
+elseif strafemethod == "Right" then 
+    mmth = CFrame.new(strafedifference, 0, 0)
+elseif strafemethod == "Left" then 
+    mmth = CFrame.new(-strafedifference, 0, 0)
+end
+
+
+
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+
+local function GetClosestPlayer()
+    local Closest = {nil, nil}
+    for _, Player in pairs(Players:GetPlayers()) do
+        if Player == LocalPlayer then continue end
+        local Character = Player.Character
+        if Character then
+            local HumanoidRootPart = Character:FindFirstChild("HumanoidRootPart")
+            if HumanoidRootPart then
+                local vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(HumanoidRootPart.Position)
+                if onScreen then
+                    local Distance = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(vector.X, vector.Y)).Magnitude
+                    if Closest[1] == nil then Closest = {Distance, Player} continue end
+                    if Distance < Closest[1] then
+                        Closest = {Distance, Player}
+                    end
+                end
+            end
+        end
+    end
+    return Closest[2]
+end
+
+
+plr = game.Players.LocalPlayer
+ 
+hum = plr.Character.HumanoidRootPart
+ 
+mouse = plr:GetMouse()
+
+ 
+
+mouse.KeyDown:connect(function(key)
+    if key == (strafekey:lower()) then
+        if strafeenabled then 
+            if player == "Not set" then 
+                player = GetClosestPlayer()
+                plrset = true 
+                spawn(aloc)
+            else 
+                player = "Not set"
+                plrset = false 
+            end 
+        end
+    end
+end)
+RunService.RenderStepped:Connect(function()
+if Config.StrafeSettings.DisableStrafeOnTargetDeath then 
+ if player.Character then
+			if player.Character:FindFirstChild("Humanoid") then
+				local humanoide = player.Character.Humanoid;
+				local KOd = player.Character:WaitForChild("BodyEffects")["K.O"].Value;
+			local Grabbed = player.Character:FindFirstChild("GRABBING_CONSTRAINT") ~= nil;
+				if (humanoide.Health < 1 or KOd or Grabbed) then
+player = "Not set"
+            plrset = false
+					return;
+				end
+			else
+			end
+		else
+		end
+	end 
+end)
+
+if Config.Visuals.Selfdot then 
+    selfdotlol = dot(game.Players.LocalPlayer.Character.HumanoidRootPart,0.7)
+   game.Players.LocalPlayer.CharacterAdded:connect(function()
+   wait(0.2)
+    selfdotlol = dot(game.Players.LocalPlayer.Character.HumanoidRootPart,0.7)
+end)
+end 
+
+local ImGui = loadstring(game:HttpGet("https://raw.githubusercontent.com/wiIlow/imgui-rbx/main/main.lua", true))()
+
+local Window = ImGui:Begin({
+    Name = "ImGui RBX Example",
+    Width = 495,
+    Height = 355
+})
+
+
+
+Window:Text("Test, hello 123");
+
+Window:Seperator();
+
+local i = 0
+Window:Button("Button"):Connect(function()
+    i += 1
+    print(i)
+end)
+
+Window:Seperator();
+
+
+
+Window:Seperator();
+
+Window:SliderFloat({
+    Name = "WalkSpeed",
+    Min = 16,
+    Max = 100,
+    Default = 16,
+    OnChanged = function(value) 
+        game:GetService("Players").LocalPlayer.Character.Humanoid.WalkSpeed = value
+    end
+})
+
+Window:Seperator();
+
+Window:SliderInteger({
+    Name = "JumpPower",
+    Min = 50,
+    Max = 100,
+    Default = 50,
+    OnChanged = function(value) 
+        game:GetService("Players").LocalPlayer.Character.Humanoid.JumpPower = value
+    end
+})
+
+Window:Seperator();
+
+Window:CheckBox({
+    Name = "Sit",
+    Enabled = false,
+    OnChanged = function(value) 
+        game:GetService("Players").LocalPlayer.Character.Humanoid.Sit = value
+    end
+})
+
+Window:Seperator();
+
+
+
+Window:RadioButtons({
+    Default = "Closest",
+    Buttons = {"Camlock", "Target", "Silent"},
+    OnChanged = function(radio, state) 
+        if radio == "Camlock" then 
+            Config.Main.Camlock.Enabled = state
+			else
+			Config.Main.Camlock.Enabled = false
+        end
+        if radio == "Target" then 
+		updateClosestPlayer()
+        end 
+    end
+})
+
+Window:Seperator();
+
+Window:InputText({
+    Name = "Keybind",
+    OnEnter = function(text) 
+        Config.Main.Target.Keybind = text
+        Config.Main.Camlock.Keybind = text
+    end
+})
+
+Window:InputText({
+    Name = "Prediction",
+    OnEnter = function(text) 
+        Config.Main.Target.Prediction = text
+        Config.Main.Camlock.Prediction = text
+    end
+})
+
+Window:End()
+
